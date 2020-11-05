@@ -1,2 +1,9 @@
 # IN3062-CW
-radu-cristian.dumitrana@city.ac.uk     razvan.gututui@city.ac.uk
+
+Students working on this:
+
+Radu Cristian Dumitrana
+radu-cristian.dumitrana@city.ac.uk
+
+Razvan Gututui
+razvan.gututui@city.ac.uk
