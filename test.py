@@ -1,6 +1,7 @@
 import pandas as pd
 import imblearn as imb
 from imblearn.over_sampling import RandomOverSampler
+from imblearn.over_sampling import SMOTE
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_validate
@@ -36,39 +37,44 @@ covid = df
 
 # sort
 # sorted_df = covid.sort_values(by='default payment next month')
-zeroes_df = covid[covid['default payment next month'] == 0.0]
-ones_df = covid[covid['default payment next month'] == 1.0]
 
 
-# oversample = RandomOverSampler(sampling_strategy='minority')
-# X_over, y_over = oversample.fit_resample(zeroes_df, ones_df)
 # zeroes_df = zeroes_df[:len(ones_df)]
 # sorted_df = X_over.append(y_over)
 # covid = sorted_df
 # covid = covid.reindex(np.random.permutation(covid.index))
-print(len(covid))
 # print(covid.columns)
 
-# result = []
-# for x in covid.columns:
-#     if x != 'default payment next month':
-#         result.append(x)
+result = []
+for x in covid.columns:
+    if x != 'default payment next month':
+        result.append(x)
 
-# X = covid[result].values
-# y = covid['default payment next month'].values
+X = covid[result].values
+y = covid['default payment next month'].values
 
-# X_train, X_test, y_train, y_test = train_test_split(
-#     X, y, test_size=0.1)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.1)
 
-# Random_Forest_model = RandomForestClassifier(
-#     n_estimators=100, criterion="entropy")
+sm = SMOTE(random_state=12)
 
-# Random_Forest_model.fit(X_train, y_train)
+X_train_res, y_train_res = sm.fit_sample(X_train, y_train)
 
-# y_pred = Random_Forest_model.predict(X_test)
+# print(len(X_train_res), len(y_train_res))
+# zeroes_df = y_train_res[y_train_res == 0.0]
+# ones_df = y_train_res[y_train_res == 1.0]
+# print(len(zeroes_df), len(ones_df))
 
-# accuracy = accuracy_score(y_pred, y_test)
-# print('The accuracy is: ', accuracy*100, '%')
+
+Random_Forest_model = RandomForestClassifier(
+    n_estimators=100, criterion="entropy")
+
+Random_Forest_model.fit(X_train_res, y_train_res)
+
+y_pred = Random_Forest_model.predict(X_test)
+
+accuracy = accuracy_score(y_pred, y_test)
+print('The accuracy is: ', accuracy*100, '%')
 
 
 # ppn = Perceptron(max_iter=1000, tol=0.001, eta0=1,
