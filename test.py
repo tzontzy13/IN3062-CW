@@ -22,54 +22,30 @@ df = pd.read_excel(filename_read)
 
 # drop columns
 df.drop('ID', 1, inplace=True)
-# df.drop("EDUCATION", 1, inplace=True)
-# df.drop('SEX', 1, inplace=True)
 
-covid = df
-# filter data, we only keep rows with a "positive" covid_res
-#covid = df[df['covid_res'] == 0.0]
+credit_card = df
 
-# since all covid_res have value 1, we drop column
-#covid.drop('covid_res', 1, inplace=True)
-
-# reshuflle
-# covid = covid.reindex(np.random.permutation(covid.index))
-
-# sort
-# sorted_df = covid.sort_values(by='default payment next month')
-
-
-# zeroes_df = zeroes_df[:len(ones_df)]
-# sorted_df = X_over.append(y_over)
-# covid = sorted_df
-# covid = covid.reindex(np.random.permutation(covid.index))
-# print(covid.columns)
+credit_card = credit_card.reindex(np.random.permutation(credit_card.index))
 
 result = []
-for x in covid.columns:
+for x in credit_card.columns:
     if x != 'default payment next month':
         result.append(x)
 
-X = covid[result].values
-y = covid['default payment next month'].values
+X = credit_card[result].values
+y = credit_card['default payment next month'].values
+
+sm = SMOTE(random_state=12, sampling_strategy='minority', k_neighbors=9)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.1)
 
-sm = SMOTE(random_state=12)
-
-X_train_res, y_train_res = sm.fit_sample(X_train, y_train)
-
-# print(len(X_train_res), len(y_train_res))
-# zeroes_df = y_train_res[y_train_res == 0.0]
-# ones_df = y_train_res[y_train_res == 1.0]
-# print(len(zeroes_df), len(ones_df))
-
+X_train, y_train = sm.fit_sample(X_train, y_train)
 
 Random_Forest_model = RandomForestClassifier(
     n_estimators=100, criterion="entropy")
 
-Random_Forest_model.fit(X_train_res, y_train_res)
+Random_Forest_model.fit(X_train, y_train)
 
 y_pred = Random_Forest_model.predict(X_test)
 
@@ -85,14 +61,43 @@ print('The accuracy is: ', accuracy*100, '%')
 
 # fold = 1
 
-# for train_index, validate_index in kf.split(X, y):
-#     ppn.fit(X[train_index], y[train_index])
-#     y_test = y[validate_index]
-#     y_pred = ppn.predict(X[validate_index])
-#     # print(y_test)
-#     # print(y_pred)
-#     # print(f"Fold #{fold}, Training Size: {len(trainDF)}, Validation Size: {len(validateDF)}")
+# for train_index, validate_index in kf.split(X_train_res, y_train_res):
+
+#     ppn.fit(X_train_res[train_index], y_train_res[train_index])
+#     y_test = y_train_res[validate_index]
+#     y_pred = ppn.predict(X_train_res[validate_index])
 #     print(
-#         f"Fold #{fold}, Training Size: {len(X[train_index])}, Validation Size: {len(X[validate_index])}")
+#         f"Fold #{fold}, Training Size: {len(X_train_res[train_index])}, Validation Size: {len(X_train_res[validate_index])}")
 #     print('Accuracy: %.2f' % accuracy_score(y_test, y_pred))
 #     fold += 1
+
+
+# ignore
+
+# filter data, we only keep rows with a "positive" credit_card_res
+#credit_card = df[df['credit_card_res'] == 0.0]
+
+# since all credit_card_res have value 1, we drop column
+#credit_card.drop('credit_card_res', 1, inplace=True)
+
+# reshuflle
+# credit_card = credit_card.reindex(np.random.permutation(credit_card.index))
+
+# sort
+# sorted_df = credit_card.sort_values(by='default payment next month')
+
+
+# zeroes_df = zeroes_df[:len(ones_df)]
+# sorted_df = X_over.append(y_over)
+# credit_card = sorted_df
+# print(credit_card.columns)
+
+# print(len(X_train_res), len(y_train_res))
+
+# print(len(X_train_res), len(y_train_res))
+# zeroes_df = y_train_res[y_train_res == 0.0]
+# ones_df = y_train_res[y_train_res == 1.0]
+# print(len(zeroes_df), len(ones_df))
+
+# df.drop("EDUCATION", 1, inplace=True)
+# df.drop('SEX', 1, inplace=True)

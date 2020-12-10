@@ -1,4 +1,4 @@
 .vscode/
-./Dataset
-./Examples
-./*npy
+/Dataset
+/Examples
+*npy
