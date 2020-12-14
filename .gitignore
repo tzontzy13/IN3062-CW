@@ -1,1 +1,7 @@
 .vscode/
+Dataset/
+saved_model/
+Examples/
+data_set_images.npy
+data_set_targets.npy
+data_set.npy

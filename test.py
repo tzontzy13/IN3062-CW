@@ -15,7 +15,10 @@ import tensorflow as tf
 import numpy as np
 import os
 
+
 # read file
+
+
 path = "."
 filename_read = os.path.join(path, "dataset.xls")
 df = pd.read_excel(filename_read)
@@ -27,10 +30,10 @@ df.drop('ID', 1, inplace=True)
 
 covid = df
 # filter data, we only keep rows with a "positive" covid_res
-#covid = df[df['covid_res'] == 0.0]
+# covid = df[df['covid_res'] == 0.0]
 
 # since all covid_res have value 1, we drop column
-#covid.drop('covid_res', 1, inplace=True)
+# covid.drop('covid_res', 1, inplace=True)
 
 # reshuflle
 # covid = covid.reindex(np.random.permutation(covid.index))
@@ -60,6 +63,23 @@ sm = SMOTE(random_state=12)
 
 X_train_res, y_train_res = sm.fit_sample(X_train, y_train)
 
+# combined_data = []
+# for x, y in zip(X_train_res, y_train_res):
+#     combined_data.append(np.append(x, y))
+
+# combined_data = pd.DataFrame(data=combined_data, columns=covid.columns)
+# combined_data = combined_data.reindex(
+#     np.random.permutation(combined_data.index))
+
+# result = []
+# for x in combined_data.columns:
+#     if x != 'default payment next month':
+#         result.append(x)
+
+# X_train_res = combined_data[result].values
+# y_train_res = combined_data['default payment next month'].values
+
+
 # print(len(X_train_res), len(y_train_res))
 # zeroes_df = y_train_res[y_train_res == 0.0]
 # ones_df = y_train_res[y_train_res == 1.0]
@@ -69,7 +89,7 @@ X_train_res, y_train_res = sm.fit_sample(X_train, y_train)
 Random_Forest_model = RandomForestClassifier(
     n_estimators=100, criterion="entropy")
 
-Random_Forest_model.fit(X_train_res, y_train_res)
+Random_Forest_model.fit(X_train, y_train)
 
 y_pred = Random_Forest_model.predict(X_test)
 
