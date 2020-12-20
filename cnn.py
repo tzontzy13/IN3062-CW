@@ -1,27 +1,32 @@
 import os
-
 import tensorflow.keras.utils
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Activation, Flatten, Dropout
+from tensorflow.keras.layers import Dense, Activation, Flatten, Dropout, BatchNormalization
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
-
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix
 import matplotlib.pyplot as plt
-
+import seaborn as sns
 import numpy as np
 from numpy import load
-
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 
 # load array
-X_set = load('data_set_images.npy', allow_pickle=True)
-y_set = load('data_set_targets.npy', allow_pickle=True)
+# X_set = load('data_set_images.npy', allow_pickle=True)
+# y_set = load('data_set_targets.npy', allow_pickle=True)
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X_set, y_set, test_size=0.20, random_state=42)
 
-y_set = tensorflow.keras.utils.to_categorical(y_set)
+X_train = np.load('train_images.npy')
+y_train = np.load('train_targets.npy')
+X_test = np.load('test_images.npy')
+y_test = np.load('test_targets.npy')
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X_set, y_set, test_size=0.20, random_state=42)
+y_test = tensorflow.keras.utils.to_categorical(y_test)
+y_train = tensorflow.keras.utils.to_categorical(y_train)
+
 
 num_classes = y_train.shape[1]
 
@@ -56,19 +61,34 @@ datagen = ImageDataGenerator(
     data_format=None,
     # fraction of images reserved for validation (strictly between 0 and 1)
     validation_split=0.0)
-
+datagen = ImageDataGenerator(
+    rotation_range=6,
+    # randomly shift images horizontally (fraction of total width)
+    width_shift_range=0.15,
+    # randomly shift images vertically (fraction of total height)
+    height_shift_range=0.15,
+    zoom_range=0.05,  # set range for random zoom
+    horizontal_flip=True,  # randomly flip images
+)
 datagen.fit(X_train)
 
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(4, 4), activation='relu',
                  strides=1, padding='same', input_shape=X_train[0].shape))
-model.add(Conv2D(16, (3, 3), activation='relu'))
+model.add(BatchNormalization())
+# model.add(Conv2D(16, (3, 3), activation='sigmoid'))
+model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
-model.add(Conv2D(32, (3, 3), activation='relu'))
+# model.add(Conv2D(32, (3, 3), activation='sigmoid', padding='same'))
+model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
+# model.add(Conv2D(32, (3, 3), activation='sigmoid'))
+model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Flatten())
+# model.add(Dense(128, activation='sigmoid'))
+model.add(Dense(128, activation='relu'))
 model.add(Dense(64, activation='relu'))
+# model.add(Dropout(0.1))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
@@ -80,8 +100,11 @@ model.compile(loss='categorical_crossentropy',
 
 model.summary()
 
-history = model.fit(datagen.flow(X_train, y_train, batch_size=32),
-                    epochs=12)
+callback = tensorflow.keras.callbacks.EarlyStopping(
+    monitor='loss', patience=3)
+# history = model.fit(X_train, y_train, verbose=2, epochs=10)
+history = model.fit(datagen.flow(
+    X_train, y_train, batch_size=32), callbacks=[callback], epochs=12)
 # make predictions (will give a probability distribution)
 pred = model.predict(X_test)
 # now pick the most likely outcome
@@ -106,7 +129,14 @@ plt.ylabel('Accuracy')
 plt2.legend(['Accuracy'], loc='upper center')
 plt.show()
 
-# # Save model and weights
-# model_path = os.path.join("", "saved_model")
-# model.save(model_path)
-# print('Saved trained model at %s ' % model_path)
+y_pred = model.predict(X_test)
+print(y_test.shape, y_pred.shape)
+cm = confusion_matrix(np.argmax(y_test, axis=1), np.argmax(y_pred, axis=1))
+ax = plt.subplot()
+ax.set_title('Predicted vs Actual')
+ax.xaxis.set_ticklabels(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+ax.yaxis.set_ticklabels(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
+sns.heatmap(cm, annot=True, ax=ax, cmap='Reds', fmt='g')
+plt.xlabel('Predicted labels', axes=ax)
+plt.ylabel('True labels', axes=ax)
+plt.show()
