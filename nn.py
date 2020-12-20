@@ -20,9 +20,11 @@ from skimage.color import rgb2gray
 
 # load array
 X_train = np.load('train_images.npy')
+# we found a better way to normalize, using BatchNormalization() layer
 # X_train = X_train/255  # normalizing data
 y_train = np.load('train_targets.npy')
 X_test = np.load('test_images.npy')
+# we found a better way to normalize, using BatchNormalization() layer
 # X_test = X_test/255  # normalizing data
 y_test = np.load('test_targets.npy')
 
@@ -31,7 +33,8 @@ y_test = np.load('test_targets.npy')
 # X_train, X_test, y_train, y_test = train_test_split(
 #     X_set, y_set, test_size=0.20, random_state=42)
 
-
+# select model and types of layers
+# because this is a simple NN, we only added Dense layers
 model = Sequential([
     layers.Flatten(input_shape=(100, 100)),
     layers.BatchNormalization(),
@@ -48,30 +51,32 @@ model = Sequential([
 # model.add(Dense(10))
 # model.add(Dense(10, activation='softmax'))
 
+# pick Adam as optimizer
 custom = tensorflow.keras.optimizers.Adam(learning_rate=0.0001)
 
 # loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 
+# set optimizer, loss function and metrics to watch for model
 model.compile(optimizer=custom,
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy']
               )
-
+# print a summary of the model
 model.summary()
-BATCH_SIZE = 35
-STOP_CRIT = []
+
+# implement early stopping
 callback = tf.keras.callbacks.EarlyStopping(
     monitor='val_loss', patience=7)
 
+# fit greyscale images to model
 history = model.fit(rgb2gray(X_train), y_train,
                     validation_split=0.1,
                     callbacks=[callback],
                     epochs=100, batch_size=35, verbose=2)
 
-
 model.evaluate(rgb2gray(X_test),  y_test, verbose=2)
 
-
+# plot loss and accuracy
 plt.plot(history.history['loss'])
 plt.title('Model loss/accuracy')
 plt.ylabel('Loss')
@@ -86,6 +91,7 @@ plt2.legend(['Accuracy'], loc='upper center')
 plt.show()
 y_pred = model.predict(rgb2gray(X_test))
 
+# plot confusion matrix
 cm = confusion_matrix(y_test, np.argmax(y_pred, axis=1))
 ax = plt.subplot()
 ax.set_title('Predicted vs Actual')

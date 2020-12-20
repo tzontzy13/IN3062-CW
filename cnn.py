@@ -19,19 +19,22 @@ from sklearn import metrics
 # X_train, X_test, y_train, y_test = train_test_split(
 #     X_set, y_set, test_size=0.20, random_state=42)
 
+# load data
 X_train = np.load('train_images.npy')
 y_train = np.load('train_targets.npy')
 X_test = np.load('test_images.npy')
 y_test = np.load('test_targets.npy')
-
+# transform targets to target vectors
 y_test = tensorflow.keras.utils.to_categorical(y_test)
 y_train = tensorflow.keras.utils.to_categorical(y_train)
-
-
+# get number of classes to classify
 num_classes = y_train.shape[1]
 
 # OPTIMIZED CNN
 
+# image generator
+# takes X_train as input and creates images that are:
+# rotated, shifted to horizontally or vertically, zoomed in and flipped horizontally
 datagen = ImageDataGenerator(
     rotation_range=6,
     # randomly shift images horizontally (fraction of total width)
@@ -41,9 +44,10 @@ datagen = ImageDataGenerator(
     zoom_range=0.05,  # set range for random zoom
     horizontal_flip=True,  # randomly flip images
 )
-
+# fit data generator to data
 datagen.fit(X_train)
 
+# choose a model and the types of layers it contains
 model = Sequential()
 model.add(Conv2D(32, kernel_size=(4, 4), activation='relu',
                  strides=1, padding='same', input_shape=X_train[0].shape))
@@ -57,37 +61,45 @@ model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
 model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Flatten())
-# model.add(Dense(128, activation='sigmoid'))
+# model.add(Dense(256, activation='sigmoid'))
 model.add(Dense(128, activation='relu'))
-model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
 # model.add(Dropout(0.1))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
+# set Adam as optimizer
 custom = tensorflow.keras.optimizers.Adam(learning_rate=0.001)
 
+# pick a loss, optimizer and metrics to watch
 model.compile(loss='categorical_crossentropy',
               optimizer=custom,
               metrics=['accuracy'])
-
+# print model summary
 model.summary()
 
+# apply early stopping based on loss
 callback = tensorflow.keras.callbacks.EarlyStopping(
     monitor='loss', patience=3)
+# fitting without the data generator lower accuracy
 # history = model.fit(X_train, y_train, verbose=2, epochs=10)
+# train the model
+# this is where you pick batch size and number of epochs
 history = model.fit(datagen.flow(
     X_train, y_train, batch_size=32), callbacks=[callback], epochs=12)
-# make predictions (will give a probability distribution)
+
+# make predictions on houldout set (will return a probability distribution)
 pred = model.predict(X_test)
 # now pick the most likely outcome
 pred = np.argmax(pred, axis=1)
+# build target array
 y_compare = np.argmax(y_test, axis=1)
-# and calculate accuracy
+# and calculate + print accuracy
 score = metrics.accuracy_score(y_compare, pred)
 print("Accuracy score: {}".format(score))
 
 # Plot training & validation loss values
-print(history.history.keys())
+# print(history.history.keys())
 plt.plot(history.history['loss'])
 plt.title('Model loss/accuracy')
 plt.ylabel('Loss')
@@ -101,8 +113,8 @@ plt.ylabel('Accuracy')
 plt2.legend(['Accuracy'], loc='upper center')
 plt.show()
 
+# plot confusion matrix
 y_pred = model.predict(X_test)
-print(y_test.shape, y_pred.shape)
 cm = confusion_matrix(np.argmax(y_test, axis=1), np.argmax(y_pred, axis=1))
 ax = plt.subplot()
 ax.set_title('Predicted vs Actual')
