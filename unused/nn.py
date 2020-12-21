@@ -20,10 +20,12 @@ from skimage.color import rgb2gray
 
 # load array
 X_train = np.load('train_images.npy')
+X_train = rgb2gray(X_train)
 # we found a better way to normalize, using BatchNormalization() layer
 # X_train = X_train/255  # normalizing data
 y_train = np.load('train_targets.npy')
 X_test = np.load('test_images.npy')
+X_test = rgb2gray(X_test)
 # we found a better way to normalize, using BatchNormalization() layer
 # X_test = X_test/255  # normalizing data
 y_test = np.load('test_targets.npy')
@@ -69,12 +71,12 @@ callback = tf.keras.callbacks.EarlyStopping(
     monitor='val_loss', patience=7)
 
 # fit greyscale images to model
-history = model.fit(rgb2gray(X_train), y_train,
+history = model.fit(X_train, y_train,
                     validation_split=0.1,
                     callbacks=[callback],
                     epochs=100, batch_size=35, verbose=2)
 
-model.evaluate(rgb2gray(X_test),  y_test, verbose=2)
+model.evaluate(X_test,  y_test, verbose=2)
 
 # plot loss and accuracy
 plt.plot(history.history['loss'])
@@ -89,9 +91,10 @@ plt2.plot(history.history['accuracy'], color=color)
 plt.ylabel('Accuracy')
 plt2.legend(['Accuracy'], loc='upper center')
 plt.show()
-y_pred = model.predict(rgb2gray(X_test))
+y_pred = model.predict(X_test)
+# - plot loss and accuracy
 
-# plot confusion matrix
+# confusion matrix
 cm = confusion_matrix(y_test, np.argmax(y_pred, axis=1))
 ax = plt.subplot()
 ax.set_title('Predicted vs Actual')
