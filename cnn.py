@@ -49,27 +49,27 @@ datagen.fit(X_train)
 
 # choose a model and the types of layers it contains
 model = Sequential()
-model.add(Conv2D(32, kernel_size=(4, 4), activation='relu',
+model.add(Conv2D(16+8, kernel_size=(4, 4), activation='relu',
                  strides=1, padding='same', input_shape=X_train[0].shape))
 model.add(BatchNormalization())
 # model.add(Conv2D(16, (3, 3), activation='sigmoid'))
-model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(Conv2D(32+16+8, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Conv2D(32, (3, 3), activation='sigmoid', padding='same'))
-model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
+model.add(Conv2D(32+16+8, (3, 3), activation='relu', padding='same'))
 # model.add(Conv2D(32, (3, 3), activation='sigmoid'))
-model.add(Conv2D(64, (3, 3), activation='relu'))
+model.add(Conv2D(32+16+8, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Flatten())
 # model.add(Dense(256, activation='sigmoid'))
-model.add(Dense(128, activation='relu'))
-model.add(Dense(32, activation='relu'))
+model.add(Dense(128+8, activation='relu'))
+# model.add(Dense(32, activation='relu'))
 # model.add(Dropout(0.1))
 model.add(Dense(num_classes))
 model.add(Activation('softmax'))
 
 # set Adam as optimizer
-custom = tensorflow.keras.optimizers.Adam(learning_rate=0.001)
+custom = tensorflow.keras.optimizers.Adam(learning_rate=0.00091)
 
 # pick a loss, optimizer and metrics to watch
 model.compile(loss='categorical_crossentropy',
@@ -86,7 +86,7 @@ callback = tensorflow.keras.callbacks.EarlyStopping(
 # train the model
 # this is where you pick batch size and number of epochs
 history = model.fit(datagen.flow(
-    X_train, y_train, batch_size=32), callbacks=[callback], epochs=12)
+    X_train, y_train, batch_size=32), callbacks=[callback], epochs=20)
 
 # make predictions on houldout set (will return a probability distribution)
 pred = model.predict(X_test)
