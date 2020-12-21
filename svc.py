@@ -29,28 +29,29 @@ plt.show()
 # - Plot 1
 
 # NOISY Plot 3
-
-
-def plot_input(data):
+def plot_input_rgb(data):
     fig, axes = plt.subplots(4, 10, figsize=(10, 4),
                              subplot_kw={'xticks': [], 'yticks': []},
                              gridspec_kw=dict(hspace=0.1, wspace=0.1))
     for i, ax in enumerate(axes.flat):
-        ax.imshow(data[i].astype(np.uint8).reshape(100, 100, 3),
-                  cmap='binary', interpolation='nearest',
-                  clim=(0, 16))
+        ax.imshow(data[i].astype(np.uint8))
     plt.show()
 
+def plot_input_grey(data):
+    fig, axes = plt.subplots(4, 10, figsize=(10, 4),
+                             subplot_kw={'xticks': [], 'yticks': []},
+                             gridspec_kw=dict(hspace=0.1, wspace=0.1))
+    for i, ax in enumerate(axes.flat):
+        ax.imshow( data[i], #data[i].astype(np.uint8).reshape(100, 100),
+                #   cmap='binary', interpolation='nearest',
+                #   clim=(0, 16))
+        )
+    plt.show()
 
-plot_input(X)
-
-np.random.seed(42)
-noisy = np.random.normal(X, 25)  # change here for more noisiness
-plot_input(noisy)
-
-# - NOISY Plot 3
-
+plot_input_rgb(X)
 X = rgb2gray(X)
+plot_input_grey(X)
+
 X = np.reshape(X, (X.shape[0], 10000))
 
 pca = PCA(2025)
