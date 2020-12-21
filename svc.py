@@ -13,6 +13,9 @@ sns.set()
 X = np.load('data_set_images.npy')
 y = np.load('data_set_targets.npy')
 
+X_for_misslabel = X
+y_for_misslabel = y
+
 # Plot 1
 fig, axes = plt.subplots(10, 10, figsize=(8, 8),
                          subplot_kw={'xticks': [], 'yticks': []},
@@ -50,7 +53,7 @@ plot_input(noisy)
 X = rgb2gray(X)
 X = np.reshape(X, (X.shape[0], 10000))
 
-pca = PCA(2028)
+pca = PCA(2025)
 X = pca.fit_transform(X)
 
 # Plot 2
@@ -63,7 +66,7 @@ plt.colorbar()
 plt.show()
 # - Plot 2
 
-X_train, X_test, y_train, y_test = train_test_split(X, y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=7)
 
 model = SVC(kernel='rbf', C=15, gamma='scale', decision_function_shape='ovr')
 model.fit(X_train, y_train)
@@ -82,17 +85,17 @@ plt.show()
 # - CONFUSION MATRIX
 
 # - MIS LABELED PLOTTING
-fig, axes = plt.subplots(10, 10, figsize=(8, 8),
+fig, axes = plt.subplots(5, 5, figsize=(8, 8),
                          subplot_kw={'xticks': [], 'yticks': []},
                          gridspec_kw=dict(hspace=0.1, wspace=0.1))
 
 # split original data, with same seed, for images
 originalTrain, originalTest, Originalytrain, Originalytest = train_test_split(
-    X, y, random_state=7)
-test_images = originalTest.reshape(-1, 26, 26, 3)
+    X_for_misslabel, y_for_misslabel, random_state=7)
+# test_images = originalTest.reshape(-1, 45, 45)
 
 for i, ax in enumerate(axes.flat):
-    ax.imshow(test_images[i].astype(np.uint8),
+    ax.imshow(originalTest[i].astype(np.uint8),
               cmap='binary', interpolation='nearest')
     ax.text(0.05, 0.05, str(y_model[i]),
             transform=ax.transAxes,
