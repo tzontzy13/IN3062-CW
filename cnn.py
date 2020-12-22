@@ -13,6 +13,7 @@ import numpy as np
 from numpy import load
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
+import datetime as dt
 
 # Reference 1:
 # Howe, Jacob, 2020.
@@ -34,13 +35,6 @@ from sklearn import metrics
 # [ONLINE] Available at: City University Moodle
 # "Classification on digits" section.
 # [Accessed 21 December 2020]
-
-
-# load array
-# X_set = load('data_set_images.npy', allow_pickle=True)
-# y_set = load('data_set_targets.npy', allow_pickle=True)
-# X_train, X_test, y_train, y_test = train_test_split(
-#     X_set, y_set, test_size=0.20, random_state=42)
 
 # load data
 X_train = np.load('train_images.npy')
@@ -70,6 +64,8 @@ datagen = ImageDataGenerator(
     zoom_range=0.05,  # set range for random zoom
     horizontal_flip=True,  # randomly flip images
 )
+
+start_time = dt.datetime.now()
 # fit data generator to data
 datagen.fit(X_train)
 
@@ -81,18 +77,20 @@ model.add(BatchNormalization())
 # model.add(Conv2D(16, (3, 3), activation='sigmoid'))
 model.add(Conv2D(32+16+8, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.1))
 # model.add(Conv2D(32, (3, 3), activation='sigmoid', padding='same'))
 model.add(Conv2D(32+16+8, (3, 3), activation='relu', padding='same'))
 # model.add(Conv2D(32, (3, 3), activation='sigmoid'))
 model.add(Conv2D(32+16+8, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Dropout(0.1))
 model.add(Flatten())
 model.add(Dense(128+8, activation='relu'))
 # model.add(Dense(32, activation='relu'))
 # When adding the dropout feature anywhere in the model, the accuracy and loss drop significantly
-# model.add(Dropout(0.1))
-model.add(Dense(num_classes))
-model.add(Activation('softmax'))
+model.add(Dropout(0.1))
+model.add(Dense(num_classes, activation='softmax'))
+# model.add(Activation('softmax'))
 
 # set Adam as optimizer
 custom = tensorflow.keras.optimizers.Adam(learning_rate=0.00091)
@@ -112,7 +110,7 @@ callback = tensorflow.keras.callbacks.EarlyStopping(
 # train the model
 # this is where you pick batch size and number of epochs
 history = model.fit(datagen.flow(
-    X_train, y_train, batch_size=32), callbacks=[callback], epochs=20)
+    X_train, y_train, batch_size=33), callbacks=[callback], epochs=20)
 
 y_pred = model.predict(X_test)
 
@@ -122,6 +120,8 @@ y_test = np.argmax(y_test, axis=1)
 
 score = metrics.accuracy_score(y_test, y_pred)
 print("Accuracy: ", score)
+
+print("Time spent running: ", dt.datetime.now() - start_time)
 
 # Plots training & validation loss values - reference 1
 plt.plot(history.history['loss'])
