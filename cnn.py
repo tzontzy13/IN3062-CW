@@ -14,6 +14,9 @@ from numpy import load
 from sklearn.model_selection import train_test_split
 from sklearn import metrics
 import datetime as dt
+from sklearn.metrics import classification_report
+
+# all sources used for tuning parameters:
 
 # Reference 1:
 # Howe, Jacob, 2020.
@@ -29,6 +32,21 @@ import datetime as dt
 # Example section.
 # [Accessed 21 December 2020]
 
+# Tensorflow Documentation, 2020.
+# Adam.
+# [ONLINE] Available at: https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam
+# [Accessed 21 December 2020]
+
+# Tensorflow Documentation, 2020.
+# Dropout.
+# [ONLINE] Available at: https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout
+# [Accessed 21 December 2020]
+
+# Tensorflow Documentation, 2020.
+# ImageDataGenerator.
+# [ONLINE] Available at: https://www.tensorflow.org/api_docs/python/tf/keras/preprocessing/image/ImageDataGenerator
+# [Accessed 21 December 2020]
+
 # Reference 3:
 # Howe, Jacob, 2020.
 # Tutorial 4 (Introduction To AI).
@@ -36,7 +54,22 @@ import datetime as dt
 # "Classification on digits" section.
 # [Accessed 21 December 2020]
 
+# Reference 4:
+# Tensorflow Documentation, 2020.
+# Batch Normalization.
+# [ONLINE] Available at: https://www.tensorflow.org/api_docs/python/tf/keras/layers/BatchNormalization
+# [Accessed 21 December 2020]
+
+# Reference 5:
+# Scikit-learn Documentation, 2020.
+# sklearn.metrics.classification_report.
+# [ONLINE] Available at: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html
+# Example section.
+# [Accessed 21 December 2020]
+
 # load data
+# transform it to rgb
+# rescale it
 X_train = np.load('train_images.npy')
 X_train = rgb2gray(X_train)
 X_train = np.reshape(X_train, (-1, 100, 100, 1))
@@ -120,7 +153,10 @@ y_test = np.argmax(y_test, axis=1)
 
 score = metrics.accuracy_score(y_test, y_pred)
 print("Accuracy: ", score)
-
+print('\n')
+print('classification report:')
+print(classification_report(y_test, y_pred))
+print('\n')
 print("Time spent running: ", dt.datetime.now() - start_time)
 
 # Plots training & validation loss values - reference 1
@@ -141,6 +177,8 @@ plt.show()
 y_pred = model.predict(X_test)
 y_pred = np.argmax(y_pred, axis=1)
 cm = confusion_matrix(y_test, y_pred)
+print('\n')
+print(cm)
 ax = plt.subplot()
 ax.set_title('Predicted vs Actual')
 ax.xaxis.set_ticklabels(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'])
