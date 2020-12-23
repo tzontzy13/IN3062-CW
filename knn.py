@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import datetime as dt
 
+# all sources used for tuning parameters:
+
 # Reference 1:
 # Scikit-learn Documentation, 2020.
 # sklearn.metrics.classification_report.
@@ -32,6 +34,16 @@ import datetime as dt
 # skimage.color.rgb2gray()
 # [ONLINE] Available at: https://scikit-image.org/docs/dev/api/skimage.color.html .
 # Example section.
+# [Accessed 21 December 2020]
+
+# sklearn Documentation, 2020.
+# KNeighborsClassifier.
+# [ONLINE] Available at: https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html
+# [Accessed 21 December 2020]
+
+# sklearn Documentation, 2020.
+# StandardScaler.
+# [ONLINE] Available at: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html
 # [Accessed 21 December 2020]
 
 # load array
@@ -70,7 +82,7 @@ start_time = dt.datetime.now()
 best_k = 0
 best_a = 0
 
-possible_k = np.arange(7, 15, 2)
+possible_k = np.arange(6, 14, 3)
 for k in possible_k:
 
     model = KNeighborsClassifier(n_neighbors=k, weights='distance', 
@@ -92,15 +104,17 @@ model.fit(X_train, y_train)
 
 # print accuracy on test data (holdout set)
 score = model.score(X_test, y_test)
-print("best k=%d, accuracy=%.2f%%" % (9, score * 100))
-
+print("best k=%d, accuracy=%.2f%%" % (best_k, score * 100))
+print('\n')
 # predict on test data
 # used in developing the confusion matrix and classification report
 predictions = model.predict(X_test)
 print("Time spent running: ", dt.datetime.now() - start_time)
+print('\n')
 print(classification_report(y_test,predictions))
 
 cm = confusion_matrix(predictions, y_test)
+print('confusion matrix:')
 print(cm)
 
 # plot confusion matrix - reference 2
