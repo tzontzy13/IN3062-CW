@@ -8,6 +8,4 @@ radu-cristian.dumitrana@city.ac.uk
 Razvan Gututui
 razvan.gututui@city.ac.uk
 
-On every commit, we will add a short description of work done, for each individual
-
-work done by Radu and Razvan via screensharing
+All work is done via screen sharing, both of us worked on all parts of the project in equal measure
